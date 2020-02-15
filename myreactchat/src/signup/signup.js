@@ -1,4 +1,5 @@
 import React from 'react';
+import {Link} from 'react-router-dom';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Input from '@material-ui/core/Input';
@@ -12,34 +13,83 @@ const firebase = require('firebase');
 
 class SignupComponent extends React.Component {
 
+    constructor() {
+        super();
+        this.state = {
+          email: null,
+          password: null,
+          passwordConfirmation: null,
+          signupError: ''
+        };
+      }
+
         render() {
 
             const {classes} = this.props;
 
             return ( 
                 <main className={classes.main}>
-                    <CssBaseline></CssBaseline>
-                    <Paper className={classes.paper}>
-                    <Typography component='h1'variant='h5'>
-                        Sign Up!
-                    </Typography>
-                    <form onSubmit={(e) => this.submitSignup(e)} className={classes.form}>
-                    <FormControl require fulllWidth margin='normal'>
-                        <InputLabel htmlFor='signup-email-input'>Enter Your Email</InputLabel>
-                        <Input autoComplete='email' onChange={(e) => this.userTyping('email',e)} autoFocus id='signup-email-input' ></Input>
-                    </FormControl>
-                    </form>
-                </Paper>
-                </main>
+        <CssBaseline/>
+        <Paper className={classes.paper}>
+          <Typography component="h1" variant="h5">
+            Sign Up!
+          </Typography>
+          <form onSubmit={(e) => this.submitSignup(e)} className={classes.form}>
+            <FormControl required fullWidth margin='normal'>
+              <InputLabel htmlFor='signup-email-input'>Enter your email</InputLabel>
+              <Input autoComplete='email' autoFocus onChange={(e) => this.userTyping('email', e)} id='signup-email-input'></Input>
+            </FormControl>
+            <FormControl required fullWidth margin='normal'>
+              <InputLabel htmlFor='signup-password-input'>Create a password</InputLabel>
+              <Input type="password" onChange={(e) => this.userTyping('password', e)} id='signup-password-input'></Input>
+            </FormControl>
+            <FormControl required fullWidth margin='normal'>
+              <InputLabel htmlFor='signup-password-confirmation-input'>Confirm your password</InputLabel>
+              <Input type="password" onChange={(e) => this.userTyping('passwordConfirmation', e)} id='signup-password-confirmation-input'></Input>
+            </FormControl>
+            <Button type='submit' fullWidth variant='contained' color='primary' className={classes.submit}>Submit</Button>
+          </form> 
+          {
+              this.state.signupError ?
+              <Typography className={classes.errorText} component='h5' variant='h6'>
+              {this.state.signupError}
+            </Typography> :
+            null
+          }
+          
+            <Typography component='h5' variant='h6' className={classes.hasAccountHeaader }>Already have an account?</Typography>
+             <Link className={classes.logInLink} to='/login'>Log In!</Link>
+             </Paper>
+      </main>
             );
             }
+            formIsValid = () => this.state.password === this.state.passwordConfirmation;
+
             userTyping =  (type,e)=>{
-                console.log(type,e);
+                switch (type) {
+                    case 'email':
+                      this.setState({ email: e.target.value });
+                      break;
+              
+                    case 'password':
+                      this.setState({ password: e.target.value });
+                      break;
+              
+                    case 'passwordConfirmation':
+                      this.setState({ passwordConfirmation: e.target.value });
+                      break;
+              
+                    default:
+                      break;
+                  }
                 
             }
             submitSignup = (e) =>{
-                console.log('SUBMITTING');
-                
+                e.preventDefault();
+                if(!this.formIsValid()) {
+                    this.setState({ signupError: 'Passwords do not match' });
+                    return; 
+                }
             }
         }
         export default withStyles(styles)(SignupComponent);
