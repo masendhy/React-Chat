@@ -87,9 +87,33 @@ class SignupComponent extends React.Component {
             submitSignup = (e) =>{
                 e.preventDefault();
                 if(!this.formIsValid()) {
-                    this.setState({ signupError: 'Passwords do not match' });
+                    this.setState({ signupError: 'Passwords do not match!' });
                     return; 
                 }
-            }
-        }
-        export default withStyles(styles)(SignupComponent);
+    firebase
+      .auth()
+      .createUserWithEmailAndPassword(this.state.email, this.state.password)
+      .then(authRes => {
+        const userObj = {
+          email: authRes.user.email,
+        //   friends: [],
+        //   messages: []
+        };
+         firebase
+          .firestore()
+          .collection('users')
+          .doc(this.state.email)
+          .set(userObj)
+          .then(() => {
+            this.props.history.push('/dashboard');
+        }, dbError => {
+          console.log( dbError);
+          this.setState({ signupError: 'Failed to add user' });
+        });
+    }, authError => {
+      console.log(authError);
+      this.setState({ signupError: 'Failed to add user' });
+    });
+    }
+}
+export default withStyles(styles)(SignupComponent);
